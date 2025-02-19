@@ -1,12 +1,21 @@
 from rest_framework import serializers
 
 from storage_api.models.image_models import Image
+from storage_api.models.data_models import Hashtag, IGUser
 from storage_api.models.project_models import *
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     are_all_images_analyzed = serializers.SerializerMethodField()
     next_image_to_analyze = serializers.SerializerMethodField()
+    nr_hashtags = serializers.SerializerMethodField()
+    nr_users = serializers.SerializerMethodField()
+
+    def get_nr_hashtags(self, obj:Project):
+        return Hashtag.objects.filter(project=obj).count()
+
+    def get_nr_users(self, obj:Project):
+        return IGUser.objects.filter(project=obj).count()
 
     def get_are_all_images_analyzed(self, obj:Project):
         return Image.objects.filter(project=obj, isDataGathered=False).count() == 0

@@ -90,7 +90,9 @@ const ProjectOverviewPage = () => {
 
             content={
                 <div>
-
+                    <div>
+                        users: {projectData.nr_users}, hashtags: {projectData.nr_hashtags}
+                    </div>
                     <Gallery prjDataRefetch={projectDataRefetch} prjId={prjId} showImages={showImages}/>
 
                 </div>
