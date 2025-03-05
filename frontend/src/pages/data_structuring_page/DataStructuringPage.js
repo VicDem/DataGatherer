@@ -56,11 +56,11 @@ const DataStructuringPage = () => {
 
             leftChildren={
                 <div className={"w-100 h-100"}>
-                    <img
+                    {/*<img
                         className={"w-100 h-100 object-fit-contain"}
                         src={imgUrl}
                         alt={"Immagine in analisi"}
-                    />
+                    />*/}
                 </div>
             }
 
@@ -69,7 +69,7 @@ const DataStructuringPage = () => {
 
                     <UsernameAnalysisCard imgId={imgId} />
 
-                    <HashtagAnalysisGallery imgId={imgId}/>
+                    {/*<HashtagAnalysisGallery imgId={imgId}/>*/}
 
                 </div>
             }

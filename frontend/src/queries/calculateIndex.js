@@ -2,25 +2,17 @@ import {defaultBaseUrl} from "../global_vars";
 import axios from 'axios';
 import getAuthAxiosConfig from "./common/getAuthAxiosConfig";
 
-const fetchRecognizedTextFromImage = async (imgId, fieldName) => {
+const calculateIndex = async () => {
 
     let base = process.env.REACT_APP_API_URL || defaultBaseUrl
 
-    const {data} = await axios.get(
-        base + `/b/storage_api/img_crops/?image=${imgId}&fieldName=${fieldName}`,
+    await axios.get(
+        base + `/b/fx_api/compute_index/`,
         await getAuthAxiosConfig(),
-    )
-
-    if (!Array.isArray(data)){
-        throw Error("the result is not an array!")
-    }
-
-    if (data.length === 1){
-        return data[0]
-    }
-
-    return null
+    ).then((res) => {
+        console.log(res.data)
+    })
 
 }
 
-export default fetchRecognizedTextFromImage
+export default calculateIndex

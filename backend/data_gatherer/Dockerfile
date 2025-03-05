@@ -7,6 +7,7 @@ WORKDIR /srv/app
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV ANNOY_COMPILER_ARGS=-DNO_MANUAL_VECTORIZATION
 
 # install dependencies
 RUN pip install --upgrade pip
@@ -17,12 +18,15 @@ RUN apt-get update && apt-get install -y \
   netcat \
   libpq-dev \
   postgresql-client \
+  g++ \
   && apt-get clean
 
 ENV PYHTONUNBUFFERED=1
 RUN apt-get update \
   && apt-get -y install tesseract-ocr \
   && apt-get -y install ffmpeg libsm6 libxext6 # required for opencv & pytesseract
+
+
 
 # install temp dependencies for build of pyscopg2 etc
 RUN pip install -r requirements.txt

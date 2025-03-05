@@ -1,9 +1,17 @@
-# compute_index.py
+import json
+
 from annoy import AnnoyIndex
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-def compute_indexes(usernames):
+def compute_index():
+    num_trees = 10
+
+    from storage_api.models.data_models import IGUser, UserHashtagUse
+    usernames = list(UserHashtagUse.objects.all().values_list('igUser__name', flat=True).distinct())
+    #usernames = list(IGUser.objects.all().values_list('name', flat=True))
+
+    usernames = [s for s in usernames if "follow" not in s.lower()]
 
     # Convert usernames and raw_string into vectors using TF-IDF
     vectorizer = TfidfVectorizer()
@@ -13,17 +21,25 @@ def compute_indexes(usernames):
     # Initialize Annoy index (using 10 trees)
     index = AnnoyIndex(vectors.shape[1], 'angular')  # 'angular' is for cosine similarity
 
-    # Add the raw string vector to the Annoy index (index 0)
-    index.add_item(0, vectors[0])
-
-    # Add username vectors to the Annoy index (index 1 onwards)
-    for idx, vector in enumerate(vectors[1:], start=1):
+    # Add username vectors to the Annoy index
+    for idx, vector in enumerate(vectors):
         index.add_item(idx, vector)
 
     # Build the index
-    index.build(10)  # You can adjust the number of trees (higher = more accurate, slower)
+    index.build(num_trees)  # You can adjust the number of trees (higher = more accurate, slower)
 
     # Save the index to a file
     index.save('usernames_index.ann')  # Save to file 'usernames_index.ann'
 
+    from contextlib import redirect_stdout
+
+    # Salva la configurazione (vector_size e num_trees)
+    config = {'vector_size': vectors.shape[1], 'num_trees': num_trees, 'usernames': usernames}
+
+    # Salva la configurazione in un file JSON
+    with open('annoy_config.json', 'w') as f:
+        json.dump(config, f)
+
     print("Annoy index saved successfully!")
+
+

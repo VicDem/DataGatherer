@@ -6,9 +6,17 @@ import HotButton from "../hotstuff/HotButton";
 import {createImgData} from "../../queries/createImgData";
 import {fetchImageData} from "../../queries/fetchImageData";
 
-const DataAnalysisCard = ({title, rows, imgId, infoText, btnRef, setParentSuccess}) => {
+const DataAnalysisCard = ({title, rows, imgId, infoText, btnRef, setParentSuccess, suggestionsAllowed}) => {
     const [content, setContent] = useState("")
     const [isSuccess, setIsSuccess] = useState(0)
+
+    const useSuggestion = () => {
+        setContent(elaboratedImageData?.suggestedText)
+    }
+
+    const useRecognized = () => {
+        setContent(elaboratedImageData?.recognizedText)
+    }
 
 
     const {error: imgDataError, isSuccess: isImageDataSuccess} = useQuery({
@@ -24,11 +32,11 @@ const DataAnalysisCard = ({title, rows, imgId, infoText, btnRef, setParentSucces
     })
 
 
-    const {data: recognizedText, error, isFetching} = useQuery({
+    const {data: elaboratedImageData, error, isFetching} = useQuery({
         queryKey: [`fetchImageCropData_${title}`],
         queryFn: async () => {
             const res = await fetchRecognizedTextFromImage(imgId, title)
-            if (!content) setContent(res)
+            if (!content) setContent(res.recognizedText)
             return res
         },
         retry: 1,
@@ -91,11 +99,27 @@ const DataAnalysisCard = ({title, rows, imgId, infoText, btnRef, setParentSucces
                     <textarea
                         className={"w-100 font-monospace"}
                         placeholder={"Testo riconosciuto..."}
-                        value={recognizedText}
+                        value={elaboratedImageData?.recognizedText}
                         disabled={true}
                         rows={rows}
                     />
                 </div>
+
+                {
+                    suggestionsAllowed ? <div>
+                        <div className={'h5'}>
+                            Suggerimento
+                        </div>
+
+                        <input
+                            disabled={true}
+                            className={"w-100 font-monospace"}
+                            placeholder={"Testo riconosciuto..."}
+                            value={`'${elaboratedImageData?.suggestedText}'`}
+                        />
+                    </div> : <></>
+                }
+
 
                 <div className={'h5'}>
                     Testo finale su cui fare l'analisi
@@ -111,7 +135,7 @@ const DataAnalysisCard = ({title, rows, imgId, infoText, btnRef, setParentSucces
                     />
                 </div>
 
-                <div className={'mx-1 d-flex'}>
+                <div className={'mx-1 d-flex w-100'}>
                     <HotButton
                         className={`btn ${isSuccess === 1 ? 'btn-success' : 'btn-primary'}`}
                         uniqueHotKeyId={`save_data_${title}`}
@@ -120,6 +144,26 @@ const DataAnalysisCard = ({title, rows, imgId, infoText, btnRef, setParentSucces
                     >
                         Salva dato {title}
                     </HotButton>
+
+                    <HotButton
+                        className={`mx-2 btn btn-primary`}
+                        uniqueHotKeyId={`use_recognized_${title}`}
+                        onClick={useRecognized}
+                    >
+                        Usa testo riconosciuto
+                    </HotButton>
+
+                    {
+                        suggestionsAllowed ? <div>
+                            <HotButton
+                                className={`mx-2 btn btn-primary`}
+                                uniqueHotKeyId={`use_suggestion_${title}`}
+                                onClick={useSuggestion}
+                            >
+                                Usa suggerimento
+                            </HotButton>
+                        </div> : <></>
+                    }
 
                 </div>
             </Card>

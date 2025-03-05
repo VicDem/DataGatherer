@@ -82,7 +82,10 @@ const ImageAnalysisCard = ({
             setIsSetDefaultEnabled(true)
             cropDataRefetch()
         },
-        onError: (error) => alert("Errore nella creazione del ritaglio!" + error.message)
+        onError: (error) => {
+            alert("Errore nella creazione del ritaglio!" + error.message)
+            console.log(error)
+        }
     })
 
 

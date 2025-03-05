@@ -102,4 +102,4 @@ def upload_files(files, project, user:User):
         )
         image.save()
         images_to_check.append(image)
-    check_similarity_between_project_images(project, images_to_check)
+    #check_similarity_between_project_images(project, images_to_check)

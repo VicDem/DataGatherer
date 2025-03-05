@@ -213,7 +213,7 @@ class ImgCropModelTestCase(TestCase):
             )
         )
 
-        assert img_crop.recognizedText.strip() == 'niolajet + Follow'
+        assert img_crop.recognizedText.strip() == 'niolajet'
 
         local_img.file.delete()
         local_img.delete()

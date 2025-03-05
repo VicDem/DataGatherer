@@ -9,6 +9,7 @@ import {extendNetworkFromImage} from "../../queries/extendNetworkFromImage";
 import HotButton from "../../components/hotstuff/HotButton";
 import {structure_route} from "../data_structuring_page/DataStructuringPage";
 import {gather_route} from "../data_gatering_page/DataGatheringPage";
+import calculateIndex from "../../queries/calculateIndex";
 
 export const edit_route =  (prjId, imgId) => `/prj/${prjId}/works/${imgId}/edit`
 
@@ -25,6 +26,13 @@ const DataEditingPage = () => {
     const canMoveForwards = () => (
          usernameSuccess && hashtagSuccess
     )
+
+    const {refetch: calcIndex} = useQuery({
+        queryFn: () => calculateIndex(),
+        retry: 1,
+        enabled: false,
+        queryKey: "calc_index"
+    })
 
     const { data: imgData, error, isFetching} = useQuery({
         queryKey: ['get_scenario', imgId],
@@ -101,6 +109,7 @@ const DataEditingPage = () => {
                         btnRef={usernameSaveRef}
                         rows={4}
                         setParentSuccess={setUsernameSuccess}
+                        suggestionsAllowed={true}
                     />
 
                     <DataAnalysisCard
@@ -137,6 +146,15 @@ const DataEditingPage = () => {
                         uniqueHotKeyId={'save_data_data_edit'}
                     >
                         Salva tutti i dati
+                    </HotButton>
+
+                    <HotButton
+                        style={{width: "20vw"}}
+                        className={`btn my-2 mx-2 btn-primary`}
+                        onClick={() => calcIndex()}
+                        uniqueHotKeyId={'recalc_calc_index'}
+                    >
+                        Ricalcola indice
                     </HotButton>
 
                     <HotButton

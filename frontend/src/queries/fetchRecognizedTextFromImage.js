@@ -16,7 +16,7 @@ const fetchRecognizedTextFromImage = async (imgId, fieldName) => {
     }
 
     if (data.length === 1){
-        return data[0].recognizedText
+        return data[0]
     }
 
     return null

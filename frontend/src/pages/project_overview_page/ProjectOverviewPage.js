@@ -7,6 +7,7 @@ import TitleTopButtonsContentLayout from "../../layouts/title_topbuttons_content
 import {gather_route} from "../data_gatering_page/DataGatheringPage";
 import {useState} from "react";
 import {upload_route} from "../upload_page/UploadPage";
+import calculateIndex from "../../queries/calculateIndex";
 
 
 export const overview_route =  (prjId) => `/prj/${prjId}/`
@@ -37,8 +38,17 @@ const ProjectOverviewPage = () => {
         refetch: projectDataRefetch
     } = useQuery({
         queryFn: () => fetchProject(prjId),
-        retry: 1
+        retry: 1,
+        queryKey: "fetchProjectData"
     })
+
+    const {refetch: calcIndex} = useQuery({
+        queryFn: () => calculateIndex(),
+        retry: 1,
+        enabled: false,
+        queryKey: "calc_index"
+    })
+
 
 
     if (isFetching) {
@@ -77,6 +87,10 @@ const ProjectOverviewPage = () => {
 
                 <div className={"m-2"}>
                     <a onClick={() => setShowImages(!showImages)} className="btn btn-primary mx-1">Mostra o nascondi immagini</a>
+                </div>,
+
+                <div className={"m-2"}>
+                    <a onClick={() => calcIndex()} className="btn btn-primary mx-1">Calc index</a>
                 </div>,
 
                 <div className={'m-2'}>
