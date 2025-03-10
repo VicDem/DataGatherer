@@ -8,6 +8,7 @@ import sys
 
 
 def get_suggestion(raw_text) -> str:
+    return "disabled from code"
     try:
         with open('annoy_config.json', 'r') as f:
             config = json.load(f)
