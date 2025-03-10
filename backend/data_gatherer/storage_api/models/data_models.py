@@ -91,5 +91,8 @@ class UserHashtagUse(models.Model):
         on_delete=models.RESTRICT
     )
 
+    def __str__(self):
+        return f"{self.project.name}, {self.igUser.name} used #{self.hashtag.content} in {self.image.userId}"
+
     class Meta:
         unique_together = ['image', 'hashtag', 'igUser', 'project', 'author']
