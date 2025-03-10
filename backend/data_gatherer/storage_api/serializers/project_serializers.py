@@ -12,10 +12,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     nr_users = serializers.SerializerMethodField()
 
     def get_nr_hashtags(self, obj:Project):
-        return UserHashtagUse.objects.all().values_list('hashtag__content', flat=True).distinct().count()
+        return UserHashtagUse.objects.filter(project=obj).values_list('hashtag__content', flat=True).distinct().count()
 
     def get_nr_users(self, obj:Project):
-        return UserHashtagUse.objects.all().values_list('igUser__name', flat=True).distinct().count()
+        return UserHashtagUse.objects.filter(project=obj).values_list('igUser__name', flat=True).distinct().count()
 
     def get_are_all_images_analyzed(self, obj:Project):
         return Image.objects.filter(project=obj, isDataGathered=False).count() == 0
