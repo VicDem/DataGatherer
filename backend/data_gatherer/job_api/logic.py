@@ -4,6 +4,7 @@ from queue import Queue
 from threading import Thread
 
 from django.core.exceptions import ValidationError
+from django.db import connections
 from django.db.models import Q
 from django.db.transaction import atomic
 from tqdm import tqdm
@@ -130,7 +131,7 @@ def do_task(task):
     ig_users = JobIGUser.objects.filter(job=job).order_by('name')
     hashtags = JobHashtag.objects.filter(task=task).order_by('content')
 
-    data = [ig_users.values_list('name', flat=True)]
+    data = [[""] + list(ig_users.values_list('name', flat=True))]
 
     counter = 0
     for hashtag in hashtags:
@@ -166,6 +167,9 @@ def do_task(task):
     task.isCompleted = True
     task.save()
 
+    for conn in connections.all():
+        conn.close()
+
 
 def do_chunks(chunks, job):
     from job_api.models import Task, Job
@@ -187,6 +191,8 @@ def do_chunks(chunks, job):
     job.isWorking = False
     job.isCompleted = True
     job.save()
+    for conn in connections.all():
+        conn.close()
 
 
 def work_job(job, wait=False):
@@ -210,6 +216,7 @@ def work_job(job, wait=False):
 
     if wait:
         thread.join()
+
 
 
 def calculate_whole_file(job):

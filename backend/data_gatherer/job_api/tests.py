@@ -2,12 +2,32 @@ import csv
 
 from django.contrib.auth import authenticate
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db import connections
 from django.test import TransactionTestCase
 from tqdm import tqdm
 
 from job_api.logic import work_job, calculate_whole_file
 from job_api.models import *
 from storage_api.models.data_models import *
+
+def close_db_connections(func, *args, **kwargs):
+    """
+    Decorator to explicitly close db connections during threaded execution
+
+    Note this is necessary to work around:
+    https://code.djangoproject.com/ticket/22420
+    """
+
+    def _close_db_connections(*args, **kwargs):
+        ret = None
+        try:
+            ret = func(*args, **kwargs)
+        finally:
+            for conn in connections.all():
+                conn.close()
+        return ret
+
+    return _close_db_connections
 
 
 class ModelsTests(TransactionTestCase):
@@ -65,8 +85,7 @@ class ModelsTests(TransactionTestCase):
                     )
                 pbar.update(1)
 
-            print(UserHashtagUse.objects.all())
-
+    @close_db_connections
     def create_images(self):
         from django.conf import settings
 
@@ -170,6 +189,7 @@ class ModelsTests(TransactionTestCase):
 
         assert JobUserHashtagUse.objects.all().count() == 9
 
+    @close_db_connections
     def test_job_creates_correct_whole_file(self):
         from django.conf import settings
 
@@ -241,7 +261,7 @@ class ModelsTests(TransactionTestCase):
         calculate_whole_file(job)
 
         expectation = [
-            self.usernames,
+            [""] + self.usernames,
             ['a1', '2', '0', '0', '0', '0'],
             ['a2', '1', '0', '0', '0', '0'],
             ['a3', '1', '0', '0', '0', '0'],
@@ -253,6 +273,7 @@ class ModelsTests(TransactionTestCase):
             ['e2', '0', '0', '0', '0', '1'],
             ['z1', '1', '0', '0', '1', '0'],
         ]
+
 
         lines = 0
         data = []
