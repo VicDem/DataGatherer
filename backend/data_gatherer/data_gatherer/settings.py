@@ -59,6 +59,7 @@ CORS_ALLOW_METHODS = [
 INSTALLED_APPS = [
     'functions_api',
     'storage_api',
+    'job_api',
     'rest_framework_simplejwt',
 
 
