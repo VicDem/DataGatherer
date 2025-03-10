@@ -18,41 +18,36 @@ class Job(models.Model):
     )
     taskGranularity = models.IntegerField(
         default=40,
-        editable=False
+    )
+    threads = models.IntegerField(
+        default=4
     )
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,
-    )
-    completedFileUrl = models.CharField(
-        max_length=5000,
-        null=True,
-        blank=True,
     )
     notes = models.CharField(
         max_length=5000,
         null=True,
         blank=True,
     )
-    isCreated = models.BooleanField(
+    isInitiated = models.BooleanField(
+        default=False
+    )
+    isInitiating = models.BooleanField(
         default=False
     )
     isWorking = models.BooleanField(
         default=False
     )
+    file = models.FileField(
+        null=True,
+        help_text="When the job is completed, calculate the file using the provided admin action"
+    )
 
     def __str__(self):
         return self.title
 
-    @classmethod
-    def post_create(cls, sender, instance, created, *args, **kwargs):
-        if not created:
-            return
-        print("post_create method")
-        initiate_job(instance)
-
-
-post_save.connect(Job.post_create, sender=Job)
 
 
 class Task(models.Model):
@@ -61,16 +56,16 @@ class Task(models.Model):
     )
     inProgress = models.BooleanField()
     isCompleted = models.BooleanField()
-    fileURL = models.CharField(
-        max_length=5000,
-        null=True,
-        blank=True,
-    )
     job = models.ForeignKey(
         to=Job,
         on_delete=models.CASCADE,
         editable=False
     )
+    currentRow = models.IntegerField(
+        default=0
+    )
+    totRows = models.IntegerField()
+    file = models.FileField(null=True)
 
     def __str__(self):
         return f"{self.job.title}/T{self.progressiveID}"
