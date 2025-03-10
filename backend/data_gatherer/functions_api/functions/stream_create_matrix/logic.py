@@ -23,10 +23,17 @@ class CSVBuffer:
         return value
 
 
-def csv_serializer(hashtag: Hashtag, prj_users, project: Project, counter_instance: Counter, first_row):
+def csv_serializer(hashtag: Hashtag, prj_users, project: Project, counter_instance: Counter, first_row, prj_hashtags):
     if counter_instance.get() == 0:
         counter_instance.increase()
         return first_row
+    
+    prj_hashtags = list(prj_hashtags)
+
+    tot = len(prj_hashtags)
+    pos = prj_hashtags.index(hashtag)
+    
+    print(f"Writing row {pos}/{tot}")
 
     row = [hashtag.content]
     for item in prj_users:
@@ -78,8 +85,10 @@ def stream_create_matrix(project: Project, response: StreamingHttpResponse):
 
     counter_instance = Counter()
 
+
+
     response = StreamingHttpResponse((writer.writerow(csv_serializer(
-        hashtag_item, prj_users, project, counter_instance, username_strings
+        hashtag_item, prj_users, project, counter_instance, username_strings, prj_hashtags
     )) for hashtag_item in iterator), content_type="text/csv")
 
     return response
