@@ -6,7 +6,10 @@ django-filter==24.2
 djangorestframework==3.15.2
 djangorestframework_simplejwt==5.4.0
 ImageHash==4.3.1
+imageio==2.37.0
 joblib==1.4.2
+lazy_loader==0.4
+networkx==3.2.1
 numpy==2.0.1
 opencv-python==4.11.0.86
 packaging==24.1
@@ -18,10 +21,13 @@ pytesseract==0.3.10
 python-dateutil==2.9.0.post0
 pytz==2025.1
 PyWavelets==1.6.0
+scikit-image==0.24.0
 scikit-learn==1.6.1
 scipy==1.13.1
 six==1.17.0
 sqlparse==0.5.1
 threadpoolctl==3.5.0
+tifffile==2024.8.30
+tqdm==4.67.1
 typing_extensions==4.12.2
 tzdata==2025.1
