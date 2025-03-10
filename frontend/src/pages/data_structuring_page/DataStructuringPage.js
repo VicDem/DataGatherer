@@ -69,7 +69,7 @@ const DataStructuringPage = () => {
 
                     <UsernameAnalysisCard imgId={imgId} />
 
-                    {/*<HashtagAnalysisGallery imgId={imgId}/>*/}
+                    <HashtagAnalysisGallery imgId={imgId}/>
 
                 </div>
             }
