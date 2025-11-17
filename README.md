@@ -1,30 +1,51 @@
 # DataGatherer
 
-This project is aimed at the creation of a software that allows for sem i-automatic extraction of specific data from a given set of images.
+Semi‑automatic structured data extraction from image collections
 
+## Overview
 
-## Precautions
+DataGatherer is a full‑stack application that assists in turning sets of images into structured, queryable information. It provides tooling to upload, organize, derive relationships, and finally generate a user–hashtag matrix showing how frequently users have used specific tags. The goal: accelerate manual curation while preserving accuracy.
 
-This code is made to be run **locally**. It does not manage access to data, nor protects from unauthorized access. 
-Please, double check that port 8080 is not reachable from outside your trusted network.
+## Key Features
 
+- Semi‑automatic data extraction workflow from uploaded images
+- User ↔ hashtag frequency matrix generation
+- OCR & suggestion services (extensible service layer)
+- Django admin for direct entity management
+- Index computation & similarity (Annoy index present in repo)
+- Containerized deployment (Docker + docker compose)
+- Reverse‑proxied via Nginx (scalable edge layer)
 
-## Testing Coverage
+## Architecture
 
-The front end (React) is not automatically tested. 
+```
+┌────────────┐    ┌──────────────┐    ┌──────────────┐
+│   React    │ →  │   Django API │ →  │  Services /  │
+│ Frontend   │    │  (job/storage│    │  Compute/Idx │
+└────────────┘    │  functions)  │    └──────────────┘
+				│          │        │                │
+				▼          ▼        ▼                ▼
+		 Nginx ← docker network / persistence / media volume
+```
 
-The back end (Django) is unit tested.
-Automatic testing is performed on all critical operations involving data. 
-The generated matrix is tested to be accurate to the data registered in the DB.
+Core backend apps:
+- `functions_api` – common functions & business logic
+- `job_api` – job orchestration & processing logic
+- `storage_api` – models/serialization for stored entities
+- `services` – OCR, suggestion & index computation modules
 
+## Tech Stack
 
-## Requirements
+| Layer      | Technology |
+|------------|------------|
+| Frontend   | React (JS) |
+| Backend    | Django     |
+| Services   | Python modules (OCR / Annoy) |
+| Proxy      | Nginx      |
+| Packaging  | Docker / docker compose |
+| Data Store | (Likely Django default DB / configure externally) |
 
-You need Docker installed.
-
-## Result
-
-You will be able to get a matrix:
+## Data Output (Example Matrix)
 
 |           | user_1    | user_2 | ... | user_3    |
 |-----------|-----------|--------|-----|-----------|
@@ -32,21 +53,101 @@ You will be able to get a matrix:
 | hashtag_2 |           |        |     |           |
 | hashtag_n |           |        |     | weight_nn |
 
-where weight = in how many posts a user has used the hashtag? 
+Definition: <code>weight(user, hashtag)</code> = number of posts by that user containing the hashtag.
 
-## ¿How to install?
+## Security & Precautions
 
-1. Clone the repository
-2. execute `docker compose build`
-3. if everything, goes well, execute `docker compose up`
-4. goto page `http://127.0.0.1:8080` and use the application
+This application is designed for **local use only**.
 
-## How to access entity admin page?
+Please ensure:
+1. Port `8080` is not exposed publicly (restrict firewall / router). 
+2. Default admin credentials are changed if ever network‑accessible.
+3. Uploaded media does not contain sensitive PII unless you harden access.
 
-goto `http://127.0.0.1:8080/api/admin` and use credentials:
+> Important: No built‑in authentication hardening or role‑based access beyond Django’s defaults. You are responsible for securing deployments.
+
+## Prerequisites
+
+Ensure you have:
+- Docker & Docker Compose (v2+)
+- (Optional) Python 3.11+ if running backend outside containers
+
+## Quick Start
+
+```bash
+git clone https://github.com/ViDem02/DataGatherer.git
+cd DataGatherer
+docker compose build
+docker compose up
+```
+
+Then open: `http://127.0.0.1:8080`
+
+## Accessing the Admin
+
+URL: `http://127.0.0.1:8080/api/admin`
+
+Default credentials (auto‑provisioned on first run):
 
 ```
 username: admin
 password: admin
 ```
-automatically created at startup.
+
+> Change these immediately for any non‑isolated environment.
+
+## Testing
+
+- Backend: Unit tests cover critical data operations & matrix accuracy.
+- Frontend: Currently not automatically tested (roadmap item).
+
+Run backend tests (inside the backend container or a Python venv):
+```bash
+python manage.py test
+```
+
+## Project Structure (Selected)
+
+```
+backend/
+	data_gatherer/          # Django project root
+	functions_api/          # Functions & shared logic
+	job_api/                # Job orchestration
+	storage_api/            # Persistence & serializers
+	services/               # OCR, suggestion, indexing
+frontend/                 # React SPA
+nginx/                    # Reverse proxy config
+docs/                     # Diagrams & documentation
+```
+
+## Extensibility
+
+Add new extraction or analytics services by placing Python modules in `services/` and wiring tasks via `job_api` logic. Frontend queries can be added under `src/queries/` and consumed in state slices (e.g. `keyboardSlice.js`).
+
+## Roadmap / Ideas
+
+- Frontend automated testing (Jest + React Testing Library)
+- Auth hardening (JWT / session rotation)
+- Role‑based access & audit logging
+- Pluggable storage backends (PostgreSQL, S3 for media)
+- Advanced similarity & clustering visualizations
+- Export matrix in multiple formats (CSV / Parquet)
+
+## Contributing
+
+Currently oriented toward personal / portfolio use. If you wish to contribute:
+1. Fork & create a feature branch
+2. Keep changes focused & documented
+3. Open a PR describing intent & test impact
+
+## License
+
+License not specified. If publishing publicly, choose one (MIT / Apache‑2.0 / Proprietary) and update this section.
+
+## Disclaimer
+
+This repo demonstrates architectural and data processing approaches and is **not** production‑hardened. Use at your own risk.
+
+---
+
+Feel free to reach out or open issues for discussion, improvements, or clarifications.
